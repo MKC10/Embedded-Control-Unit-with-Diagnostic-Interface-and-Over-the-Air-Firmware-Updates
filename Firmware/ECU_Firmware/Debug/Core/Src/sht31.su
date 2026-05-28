@@ -1,0 +1,3 @@
+../Core/Src/sht31.c:12:16:SHT31_Init	32	static
+../Core/Src/sht31.c:36:16:SHT31_Read	40	static
+../Core/Src/sht31.c:110:16:SHT31_CRC8	24	static

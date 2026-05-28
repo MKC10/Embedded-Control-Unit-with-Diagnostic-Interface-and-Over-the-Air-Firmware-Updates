@@ -1,0 +1,8 @@
+../Core/Src/state_machine.c:18:6:SM_Init	1
+../Core/Src/state_machine.c:33:6:SM_Update	11
+../Core/Src/state_machine.c:135:20:SM_CheckSensors	11
+../Core/Src/state_machine.c:168:13:SM_DoRecovery	4
+../Core/Src/state_machine.c:198:13:SM_EnterFault	1
+../Core/Src/state_machine.c:209:13:SM_EnterWarning	1
+../Core/Src/state_machine.c:220:13:SM_EnterNormal	1
+../Core/Src/state_machine.c:232:13:SM_GetStateString	5

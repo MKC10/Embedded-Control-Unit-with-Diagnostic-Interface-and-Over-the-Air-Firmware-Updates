@@ -1,0 +1,5 @@
+../Drivers/CMSIS/Include/core_cm4.h:1938:34:__NVIC_SystemReset	4	static,ignoring_inline_asm
+../Core/Src/diagnostic.c:18:6:DIAG_Init	16	static
+../Core/Src/diagnostic.c:39:6:DIAG_Print	16	static
+../Core/Src/diagnostic.c:49:6:DIAG_RxCallback	16	static
+../Core/Src/diagnostic.c:95:6:DIAG_Process	232	static

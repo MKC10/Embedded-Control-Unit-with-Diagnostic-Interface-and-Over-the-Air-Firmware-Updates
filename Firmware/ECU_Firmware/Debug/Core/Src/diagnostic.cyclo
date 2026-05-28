@@ -1,0 +1,5 @@
+../Drivers/CMSIS/Include/core_cm4.h:1938:34:__NVIC_SystemReset	1
+../Core/Src/diagnostic.c:18:6:DIAG_Init	1
+../Core/Src/diagnostic.c:39:6:DIAG_Print	1
+../Core/Src/diagnostic.c:49:6:DIAG_RxCallback	12
+../Core/Src/diagnostic.c:95:6:DIAG_Process	19

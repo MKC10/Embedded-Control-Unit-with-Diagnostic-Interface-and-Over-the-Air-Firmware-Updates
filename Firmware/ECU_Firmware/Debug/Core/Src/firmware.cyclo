@@ -1,0 +1,4 @@
+../Core/Src/firmware.c:23:6:Firmware_Init	1
+../Core/Src/firmware.c:57:6:Firmware_Run	2
+../Core/Src/firmware.c:84:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/firmware.c:92:6:HAL_UART_RxCpltCallback	2

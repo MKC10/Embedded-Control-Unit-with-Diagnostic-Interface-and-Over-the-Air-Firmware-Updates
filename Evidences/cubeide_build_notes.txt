@@ -1,0 +1,16 @@
+# STM32CubeIDE Build Notes
+
+Projects:
+- ECU_Bootloader2
+- ECU_Firmware
+
+Verified:
+- ECU_Bootloader2 builds successfully.
+- ECU_Firmware builds successfully.
+- Firmware linker places application vector table at 0x08010000.
+- Reset_Handler is located inside the 0x08010000 firmware region.
+
+Important:
+- Bootloader linker origin: 0x08000000
+- Firmware linker origin: 0x08010000
+- USART2 must use PA2/PA3 for ST-Link Virtual COM Port.
