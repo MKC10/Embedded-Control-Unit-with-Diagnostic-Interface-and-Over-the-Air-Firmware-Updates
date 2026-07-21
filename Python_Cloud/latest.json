@@ -1,0 +1,13 @@
+{
+  "latest_version": "v2.1.0",
+  "release_type": "stable",
+  "url": "https://firmwareupdatedualbankbootloader-064123638401-us-east-2-an.s3.us-east-2.amazonaws.com/Firmware_STM32_Updtae/metadata.json",
+  "firmware_url": "https://firmwareupdatedualbankbootloader-064123638401-us-east-2-an.s3.us-east-2.amazonaws.com/Firmware_STM32_Updtae/ ECU_Firmware.bin ",
+  "checksum_required": true,
+  "update_policy": {
+    "force_update": false,
+    "rollback_enabled": true
+  },
+  "device_target": "STM32F446RE",
+  "bootloader_version_min": "1.0.0"
+}

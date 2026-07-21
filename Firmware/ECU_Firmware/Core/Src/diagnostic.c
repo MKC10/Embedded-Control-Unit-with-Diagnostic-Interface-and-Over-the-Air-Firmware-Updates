@@ -3,52 +3,32 @@
 #include "string.h"
 #include "stdlib.h"
 
-/* ── Private variables ────────────────────────────────────────── */
-/* ── Private variables ────────────────────────────────────────── */
 static uint8_t rx_byte;
 static uint8_t rx_buf[DIAG_RX_BUF_SIZE];
 static volatile uint8_t rx_index = 0;
 static volatile uint8_t cmd_ready = 0;
 static volatile uint8_t ignore_next_lf = 0;
-/* ─────────────────────────────────────────────────────────────────
- * DIAG_Init
- * Starts UART receive interrupt for single byte reception.
- * Call once after MX_USART2_UART_Init.
- * ───────────────────────────────────────────────────────────────── */
+
 void DIAG_Init(UART_HandleTypeDef *huart)
 {
-    /* Clear buffers */
     memset(rx_buf, 0, DIAG_RX_BUF_SIZE);
     rx_index = 0;
     cmd_ready = 0;
 
-    /* Start interrupt-driven single byte reception */
     HAL_UART_Receive_IT(huart, &rx_byte, 1);
 
-    /* Print welcome banner */
     DIAG_Print(huart, "\r\n== ECU Diagnostic Interface ==\r\n");
     DIAG_Print(huart, "Type HELP for available commands\r\n");
     DIAG_Print(huart, "> ");
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * DIAG_Print
- * Transmits null-terminated string over UART.
- * Blocking with 100ms timeout — safe for diagnostic use.
- * ───────────────────────────────────────────────────────────────── */
 void DIAG_Print(UART_HandleTypeDef *huart, const char *msg)
 {
     HAL_UART_Transmit(huart, (uint8_t *)msg, strlen(msg), 100);
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * DIAG_RxCallback
- * Called from HAL_UART_RxCpltCallback when a byte is received.
- * Assembles bytes into command buffer until newline received.
- * ───────────────────────────────────────────────────────────────── */
 void DIAG_RxCallback(UART_HandleTypeDef *huart)
 {
-    /* Ignore LF if it immediately follows CR */
     if (ignore_next_lf && rx_byte == '\n')
     {
         ignore_next_lf = 0;
@@ -58,7 +38,6 @@ void DIAG_RxCallback(UART_HandleTypeDef *huart)
 
     ignore_next_lf = 0;
 
-    /* Echo received character */
     HAL_UART_Transmit(huart, &rx_byte, 1, 10);
 
     if (rx_byte == '\r' || rx_byte == '\n')
@@ -87,11 +66,6 @@ void DIAG_RxCallback(UART_HandleTypeDef *huart)
     HAL_UART_Receive_IT(huart, &rx_byte, 1);
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * DIAG_Process
- * Checks if a complete command is ready and executes it.
- * Call from main loop — not from ISR context.
- * ───────────────────────────────────────────────────────────────── */
 void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
                   SHT31_Data_t *sht31, BMP280_Data_t *bmp280)
 {
@@ -100,9 +74,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
     if (!cmd_ready) return;   /* No complete command yet */
 
     cmd_ready = 0;            /* Clear flag immediately  */
-    if (!cmd_ready) return;
-
-    cmd_ready = 0;
     rx_buf[DIAG_RX_BUF_SIZE - 1] = '\0';
 
     snprintf(tx_buf, sizeof(tx_buf), "\r\nCMD RECEIVED: [%s]\r\n", rx_buf);
@@ -111,7 +82,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
 
     DIAG_Print(huart, "\r\n");
 
-    /* ── STATUS command ─────────────────────────────────────────── */
     if (strcmp((char *)rx_buf, DIAG_CMD_STATUS) == 0)
     {
         snprintf(tx_buf, sizeof(tx_buf),
@@ -126,7 +96,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
         DIAG_Print(huart, tx_buf);
     }
 
-    /* ── SENSORS command ────────────────────────────────────────── */
     else if (strcmp((char *)rx_buf, DIAG_CMD_SENSORS) == 0)
     {
         int sht_temp_i = (int)(sht31->temperature * 100);
@@ -151,7 +120,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
         DIAG_Print(huart, tx_buf);
     }
 
-    /* ── FAULT command ──────────────────────────────────────────── */
     else if (strcmp((char *)rx_buf, DIAG_CMD_FAULT) == 0)
     {
         if (ctx->fault_code == FAULT_NONE)
@@ -163,7 +131,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
             snprintf(tx_buf, sizeof(tx_buf), "Fault code: 0x%02X\r\n", ctx->fault_code);
             DIAG_Print(huart, tx_buf);
 
-            /* Decode fault bits */
             if (ctx->fault_code & FAULT_SHT31_CRC)    DIAG_Print(huart, "  [SHT31 CRC failure]\r\n");
             if (ctx->fault_code & FAULT_SHT31_RANGE)  DIAG_Print(huart, "  [SHT31 out of range]\r\n");
             if (ctx->fault_code & FAULT_BMP280_SPI)   DIAG_Print(huart, "  [BMP280 SPI failure]\r\n");
@@ -175,7 +142,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
         }
     }
 
-    /* ── RESET command ──────────────────────────────────────────── */
     else if (strcmp((char *)rx_buf, DIAG_CMD_RESET) == 0)
     {
         DIAG_Print(huart, "Resetting system...\r\n");
@@ -183,7 +149,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
         NVIC_SystemReset();
     }
 
-    /* ── HELP command ───────────────────────────────────────────── */
     else if (strcmp((char *)rx_buf, DIAG_CMD_HELP) == 0)
     {
         DIAG_Print(huart, "Available commands:\r\n");
@@ -194,7 +159,6 @@ void DIAG_Process(UART_HandleTypeDef *huart, SystemContext_t *ctx,
         DIAG_Print(huart, "  HELP    — this message\r\n");
     }
 
-    /* ── Unknown command ────────────────────────────────────────── */
     else if (strlen((char *)rx_buf) > 0)
     {
         snprintf(tx_buf, sizeof(tx_buf), "Unknown command: %s\r\n", rx_buf);

@@ -1,0 +1,22 @@
+{
+  "version": "v2.1.0",
+  "firmware_size": 24360,
+  "sha256": "95a73e824cbb32df1ea28bb970e32759b48c76964de8a56dd8313f86003f771d",
+  "key": "Firmware_STM32_Updtae/ ECU_Firmware.bin ",
+  "target_bank": "B",
+  "fallback_bank": "A",
+  "force_update": false,
+  "min_bootloader_version": "1.0.0",
+  "release_date": "2026-07-21",
+  "device_type": "STM32F446RE",
+  "security": {
+    "integrity": "sha256",
+    "signature_required": false
+  },
+  "ota": {
+    "protocol": "https",
+    "chunk_size": 256,
+    "verify_before_boot": true,
+    "rollback_enabled": true
+  }
+}

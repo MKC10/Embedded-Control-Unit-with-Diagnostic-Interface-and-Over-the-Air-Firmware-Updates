@@ -3,6 +3,7 @@
 #include "bmp280.h"
 #include "state_machine.h"
 #include "diagnostic.h"
+#include "fw_update.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -22,6 +23,17 @@ volatile uint8_t timer_tick = 0;
 
 void Firmware_Init(void)
 {
+    /* FIX: confirm boot IMMEDIATELY, as the very first action in
+     * Firmware_Init() -- before TIM2, before sensors, before the
+     * diagnostic interface, before anything else that could fail or
+     * hang. The whole point of the trial mechanism is proving the
+     * app is genuinely alive; the sooner that proof is recorded, the
+     * smaller the window where an unrelated later failure (a sensor
+     * that never responds, a diagnostic init issue) would incorrectly
+     * cost a trial attempt for a reason that has nothing to do with
+     * whether the CORE boot handoff itself actually worked. */
+    FW_Update_ConfirmBoot();
+
     HAL_TIM_Base_Start_IT(&htim2);
 
     HAL_UART_Transmit(&huart2,
